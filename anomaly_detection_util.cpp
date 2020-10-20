@@ -1,15 +1,28 @@
 #include <math.h>
 #include "anomaly_detection_util.h"
 
+/**
+ * @brief Function to measure the average 
+ * of a given value
+ * @param x 
+ * @param size 
+ * @return float 
+ */
 float avg(float* x, int size){
     float meanSum = 0.0;
+    //for loop to sum 
     for(int i = 0; i < size; i++){
         meanSum += x[i];
     }
 	return (meanSum / size);
 }
 
-// returns the variance of X and Y
+/**
+ * @brief returns the variance of X or Y
+ * @param x 
+ * @param size 
+ * @return float 
+ */
 float var(float* x, int size){
     float mean_pow = 0.0;
     for (int i = 0; i < size; i++){
@@ -19,7 +32,13 @@ float var(float* x, int size){
     return mean_pow - pow(avg(x, size), 2);
 }
 
-// returns the covariance of X and Y
+/**
+ * @brief returns the covariance of X and Y
+ * @param x 
+ * @param y 
+ * @param size 
+ * @return float 
+ */
 float cov(float* x, float* y, int size){
     float covSum = 0.0;
     // condition if the array's size are matching
@@ -35,29 +54,64 @@ float cov(float* x, float* y, int size){
 }
 
 
-// returns the Pearson correlation coefficient of X and Y
+/**
+ * @brief returns the Pearson correlation coefficient of X and Y
+ * @param x 
+ * @param y 
+ * @param size 
+ * @return float 
+ */
 float pearson(float* x, float* y, int size){
     float cov_val = cov(x, y, size);
 	return cov_val / (sqrt(var(x, size)) * sqrt(var(y, size)));
 }
 
+
 /**
-// performs a linear regression and returns the line equation
+ * @brief performs a linear regression and returns the line equation
+ * 
+ * @param points 
+ * @param size 
+ * @return Line 
+ */
 Line linear_reg(Point** points, int size){
-
-	return Line(0,0);
+    //create arrays of x values and y valuse of the points
+    float x_from_p[size];
+    float y_from_p[size];
+    for (int i = 0; i<size; i++){
+        x_from_p[i] = points[i]->x;
+        y_from_p[i] = points[i]->y;
+    }
+    float a = cov(x_from_p, y_from_p, size) / var(x_from_p,size);
+    float b = avg(y_from_p, size) - (a * avg(x_from_p, size));
+	return Line(a,b);
 }
 
-// returns the deviation between point p and the line equation of the points
+
+
+/**
+ * @brief returns the deviation between point p and the line equation of the points
+ * 
+ * @param p 
+ * @param points 
+ * @param size 
+ * @return float 
+ */
 float dev(Point p,Point** points, int size){
-	return 0;
+    Line ln = linear_reg(points, size);
+	return abs(ln.f(p.x) - p.y);
 }
 
-// returns the deviation between point p and the line
+/**
+ * @brief returns the deviation between point p and the line
+ * @param p 
+ * @param l 
+ * @return float 
+ */
 float dev(Point p,Line l){
-	return 0;
+	return abs(l.f(p.x) - p.y);
 }
 
-**/
+
 
 
