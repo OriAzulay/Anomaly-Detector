@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include "anomaly_detection_util.h"
 
 /**
@@ -99,7 +99,7 @@ Line linear_reg(Point** points, int size){
  */
 float dev(Point p,Point** points, int size){
     Line ln = linear_reg(points, size);
-	return abs(ln.f(p.x) - p.y);
+	return std::abs(ln.f(p.x) - p.y);
 }
 
 /**
@@ -109,7 +109,7 @@ float dev(Point p,Point** points, int size){
  * @return float 
  */
 float dev(Point p,Line l){
-	return abs(l.f(p.x) - p.y);
+	return std::abs(l.f(p.x) - p.y);
 }
 
 
