@@ -37,7 +37,6 @@ int main(){
 	for(int i=0;i<N;i++)
 		delete ps[i];
 
-
 	cout<<"done"<<endl;
 	return 0;
 }
