@@ -38,7 +38,8 @@ float pearson(float* x, float* y, int size);
 
 class Line{
 public:
-	const float a,b;
+	float a,b;
+	Line():a(0),b(0){} //defualt constructor
 	Line(float a, float b):a(a),b(b){}
 	float f(float x){
 		return a*x+b;

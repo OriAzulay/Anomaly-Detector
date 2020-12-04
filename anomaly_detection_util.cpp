@@ -45,10 +45,10 @@ float cov(float* x, float* y, int size){
     while ((sizeof(x) / sizeof(*x)) == (sizeof(y) / sizeof(*y)))
     {
         for(int i = 0; i < size; i++){
-        covSum += x[i] * y[i];
+        covSum += x[i] * y[i]; 
     }
     covSum = covSum / size;
-	return covSum - (avg(x, size) * avg(y, size));
+	return covSum - (avg(x, size) * avg(y, size)); //can give negative value
     }
 	return 0;
 }
@@ -75,7 +75,7 @@ float pearson(float* x, float* y, int size){
  * @return Line 
  */
 Line linear_reg(Point** points, int size){
-    //create arrays of x values and y valuse of the points
+    //create arrays of x values and y values of the points
     float x_from_p[size];
     float y_from_p[size];
     for (int i = 0; i<size; i++){
