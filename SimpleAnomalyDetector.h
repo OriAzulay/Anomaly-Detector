@@ -17,11 +17,13 @@ struct correlatedFeatures{
 
 
 class SimpleAnomalyDetector:public TimeSeriesAnomalyDetector{
+protected : 
 	vector<correlatedFeatures> cf;
+	float threshold;
+	float corrlationMin;
 public:
 	SimpleAnomalyDetector();
 	virtual ~SimpleAnomalyDetector();
-
 	virtual void learnNormal(const TimeSeries& ts);
 	virtual vector<AnomalyReport> detect(const TimeSeries& ts);
 
@@ -29,6 +31,9 @@ public:
 		return cf;
 	}
 
+	Point** toPoint(float* X, float* Y, size_t N);
+	void CorrelatedInit(float max, string f1, string f2, Point** p, int N );
+	void duplicateRemove();
 };
 
 

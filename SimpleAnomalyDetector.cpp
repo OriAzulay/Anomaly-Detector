@@ -5,6 +5,7 @@
 
 SimpleAnomalyDetector::SimpleAnomalyDetector() {
 	// TODO Auto-generated constructor stub
+	threshold = 0.9;
 
 }
 
@@ -12,6 +13,48 @@ SimpleAnomalyDetector::~SimpleAnomalyDetector() {
 	// TODO Auto-generated destructor stub
 }
 
+// ------helping methods----------
+Point** SimpleAnomalyDetector::toPoint(float* X, float* Y, size_t N){
+	Point** ps = new Point*[N];
+	for(int t=0; t<N; t++){
+		ps[t] = new Point(X[t],Y[t]); //point (x,y)
+	}
+	return ps;
+}
+
+//Method to save the correlated feature and push to the 
+void SimpleAnomalyDetector::CorrelatedInit(float max, string f1, string f2, Point** p, int N ){
+	correlatedFeatures Cpair;
+	Cpair.corrlation = max;
+	Cpair.feature1 = f1;
+	Cpair.feature2 = f2;
+	Line l = linear_reg(p,N);
+	Cpair.lin_reg = l;
+	float maxDev = 0;
+	for(int s=0; s<N; s++){
+		if (maxDev < dev(*(p[s]),l)){
+			maxDev = dev(*(p[s]),l);
+		}		
+	Cpair.threshold = maxDev*1.1;
+	}
+	cf.push_back(Cpair);
+}
+
+//A method to delete all the duplicated cf.
+void SimpleAnomalyDetector::duplicateRemove(){
+	int count = 0;
+	for(correlatedFeatures cl: cf){
+	for(int k = count; k<cf.size(); k++){
+		if ((cl.feature1 == cf.at(k).feature2) && (cl.feature2 == cf.at(k).feature1)){
+			cf.erase(cf.begin()+k);
+			continue;
+		}
+	}
+	count++;
+	}	
+}
+
+//--------------------------------
 /**
  * @brief 
  * Check for every fearture1, by pearson who is the most corrolate
@@ -21,74 +64,99 @@ SimpleAnomalyDetector::~SimpleAnomalyDetector() {
  */
 void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts){
 	TimeSeries t = ts;
-	float tempF1[t.getVector().at(0).second.size()] ;
-	float tempF2[t.getVector().at(0).second.size()];
+	size_t len = t.getVector().at(0).second.size();
+	float tempF1[len] ;
+	float tempF2[len];
 	correlatedFeatures Cpair;
 	int itr = t.getVector().size();
-	int N = sizeof(tempF1)/sizeof(tempF1[1]); //size of table's columns //cout<<t.getVector().at(i).first<<",  "<<t.getVector().at(j).first<<endl<<tempF1[1]<<"  "<<tempF2[1]<<endl;
+	int N = sizeof(tempF1)/sizeof(tempF1[1]); //size of table's columns 
 	while (itr != 0){ 
+		//for loop to run with every feature over the whole Table
+		// if it gets the most corrolated, save it in Cpair and push cf
 		for(int i=0; i<t.getVector().size(); i++){
 			float maxC = 0; 
+			string f1;
+			string f2;
+			Point** ps;
 			for(int j=0; j<t.getVector().size(); j++){
+				//skip on equal features check like A-A
 				if(t.getVector().at(i).first == t.getVector().at(j).first){
 					continue;
 				}
-				for(int k=0; k<t.getVector().at(i).second.size(); k++){ //turn vector to float
+				//turn vector to float
+				for(int k=0; k<len; k++){ 
 					tempF1[k] = t.getVector().at(i).second[k];
 					tempF2[k] = t.getVector().at(j).second[k];
 				}
-				if(maxC < pearson(tempF1,tempF2,N)){
-					maxC = pearson(tempF1, tempF2, N);
-					Cpair.corrlation = maxC;
-					Cpair.feature1 = t.getVector().at(i).first;
-					Cpair.feature2 = t.getVector().at(j).first;
-					//create points array to lin_reg
-					Point* ps[N];
-					for(int t=0;t<N;t++){
-						ps[t]=new Point(tempF1[t],tempF2[t]); //point (x,y)
-					}Line l = linear_reg(ps,N);
-					Cpair.lin_reg = l;
-					//initilaie the threshold to be maximum dev * 1.1
-					float maxDev = 0;
-					for(int s=0; s<N; s++){
-						if (maxDev < dev(*(ps[s]),l)){
-							maxDev = dev(*(ps[s]),l);
-						}		
-					Cpair.threshold = maxDev*1.1;
-					}
+				if(maxC < abs(pearson(tempF1,tempF2,N))){
+					maxC = abs(pearson(tempF1, tempF2, N));
+					f1 = t.getVector().at(i).first;
+					f2 = t.getVector().at(j).first;
+					ps = toPoint(tempF1, tempF2, len);
 				}
 			}
-			cf.push_back(Cpair);
+			CorrelatedInit(maxC,f1,f2,ps,N);
 			itr--;
+			// delete the points
+			for(size_t k=0;k<len;k++)
+				delete ps[k];
+			delete[] ps;
 		}
 	}
-	// erase duplicates in corrolateFeature vector
-	for(int n=0; n<cf.size(); n++){
-		for(int m=1; m<cf.size()-1; m++){
-			if ((cf.at(n).feature1 == cf.at(m).feature2) && (cf.at(n).feature2 == cf.at(m).feature1)){
-				cf.erase(cf.begin()+m);
-			}
-		}
-	}
-	//Checker:
-	for(correlatedFeatures cl: cf){
-		cout<<cl.feature1<<"  "<<cl.feature2<<endl;
-	}
+	duplicateRemove();
+	
+	// //Checker:
+	// for(correlatedFeatures cl: cf){
+	// 	cout<<cl.feature1<<"  "<<cl.feature2<<endl<<"threshold: "<<cl.threshold<<endl;
+	// }
 }
-
-
-
 
 /**
  * @brief on every report we want to return description and timestep.
+ *  The method in the end, return a vector of "AnomalyReport" for every single row
+ *  that count the timestep (start from 1) and have the descripsion (for the most corrolated\uncorrolated?) like "A-C"
  * 
  * @param ts 
- * @return vector<AnomalyReport> 
+ * @return vector<AnomalyReport>
  */
 vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts){
-	// TODO Auto-generated destructor stub
+	//learnNormal(ts); // to check if we need to ensure if the timeseries went throw learnNormal before.
 	vector<AnomalyReport> report;
+	for(correlatedFeatures cl: cf){
+		int index1,index2;
+		// A loop to save the corrolated index in index1(f1) and index2(f2)
+		for(int i=0; i<ts.getVector().size(); i++){
+			if(cl.feature1 == ts.getVector().at(i).first){
+				index1 = i;
+			}
+			else if (cl.feature2 == ts.getVector().at(i).first)
+			{
+				index2 = i;
+			}
+		}
+		int timeStep = 1;
+		// A loop to run over every row with the spesific iteration (A-C or B-D) and push the detected errors (cl.threshold)
+		for(int j=0; j<ts.getVector().at(0).second.size(); j++){
+			Point p1(ts.getVector().at(index1).second[j], ts.getVector().at(index2).second[j]);
+			if(dev(p1, cl.lin_reg) > cl.threshold){
+				//cout<<" dev is:"<<dev(p1, cl.lin_reg)<<"threshold is: "<< cl.threshold<< endl;
+				report.push_back(AnomalyReport(ts.getVector().at(index1).first + "-" + ts.getVector().at(index2).first, timeStep));
+			}
+			timeStep ++;
+		}
+	}
+
+	//Checker detect:
+	// for(AnomalyReport rprt: report){
+
+	// 	cout<<"detect_check: "<<rprt.description<<",  timeStep:"<<rprt.timeStep<<endl;
+		
+	// }
+	
 	return report;
 
 }
+
+
+
 

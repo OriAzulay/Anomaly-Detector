@@ -99,7 +99,7 @@ Line linear_reg(Point** points, int size){
  */
 float dev(Point p,Point** points, int size){
     Line ln = linear_reg(points, size);
-	return std::abs(ln.f(p.x) - p.y);
+	return std::abs(p.y - ln.f(p.x));
 }
 
 /**
@@ -109,7 +109,7 @@ float dev(Point p,Point** points, int size){
  * @return float 
  */
 float dev(Point p,Line l){
-	return std::abs(l.f(p.x) - p.y);
+	return std::abs(p.y - l.f(p.x));
 }
 
 

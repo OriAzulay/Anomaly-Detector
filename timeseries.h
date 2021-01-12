@@ -1,7 +1,7 @@
 #ifndef TIMESERIES_H_
 #define TIMESERIES_H_
 #include <iostream>
-#include<fstream>
+#include <fstream>
 #include <vector>
 #include <sstream>
 #include "string.h"
@@ -23,9 +23,15 @@ public:
          return features.at(index).second;
      }
     
-    
-         
-
+//    const vector<float>& getVecByString(string s)const{
+//        vector<float> v = {};
+//         for(pair<string, vector<float>> table: features){
+//             if(s == table.first){
+//             return table.second;
+//             }
+//         }
+//         return v;
+//     }
     
 };
 
