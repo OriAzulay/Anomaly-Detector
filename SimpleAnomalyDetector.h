@@ -13,6 +13,7 @@ struct correlatedFeatures{
 	float corrlation;
 	Line lin_reg;
 	float threshold;
+	Point* center;
 };
 
 
@@ -34,6 +35,7 @@ public:
 	Point** toPoint(float* X, float* Y, size_t N);
 	void CorrelatedInit(float max, string f1, string f2, Point** p, int N );
 	void duplicateRemove();
+	bool SimpleAnomalCheck(Point p, correlatedFeatures c);
 };
 
 

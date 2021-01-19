@@ -23,15 +23,6 @@ public:
          return features.at(index).second;
      }
     
-//    const vector<float>& getVecByString(string s)const{
-//        vector<float> v = {};
-//         for(pair<string, vector<float>> table: features){
-//             if(s == table.first){
-//             return table.second;
-//             }
-//         }
-//         return v;
-//     }
     
 };
 

@@ -21,8 +21,6 @@ TimeSeries::TimeSeries(const char* CSVfileName){
             size ++;
             
         }
-    
-        
     }
     //loop for initilize the rows by every feature
     while(getline(Cfile, line))

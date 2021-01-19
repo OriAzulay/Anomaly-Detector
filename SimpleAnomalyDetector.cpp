@@ -4,16 +4,14 @@
 #include <algorithm>
 
 SimpleAnomalyDetector::SimpleAnomalyDetector() {
-	// TODO Auto-generated constructor stub
-	threshold = 0.9;
-
+	threshold = 0.9; //configure the threshold
 }
 
 SimpleAnomalyDetector::~SimpleAnomalyDetector() {
-	// TODO Auto-generated destructor stub
 }
 
 // ------helping methods----------
+// create Point from list of floats
 Point** SimpleAnomalyDetector::toPoint(float* X, float* Y, size_t N){
 	Point** ps = new Point*[N];
 	for(int t=0; t<N; t++){
@@ -22,7 +20,7 @@ Point** SimpleAnomalyDetector::toPoint(float* X, float* Y, size_t N){
 	return ps;
 }
 
-//Method to save the correlated feature and push to the 
+//Method to save the correlated feature and push to the cf
 void SimpleAnomalyDetector::CorrelatedInit(float max, string f1, string f2, Point** p, int N ){
 	correlatedFeatures Cpair;
 	Cpair.corrlation = max;
@@ -68,7 +66,7 @@ void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts){
 	float tempF1[len] ;
 	float tempF2[len];
 	correlatedFeatures Cpair;
-	int itr = t.getVector().size();
+	int itr = t.getVector().size(); //iterator
 	int N = sizeof(tempF1)/sizeof(tempF1[1]); //size of table's columns 
 	while (itr != 0){ 
 		//for loop to run with every feature over the whole Table
@@ -88,6 +86,7 @@ void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts){
 					tempF1[k] = t.getVector().at(i).second[k];
 					tempF2[k] = t.getVector().at(j).second[k];
 				}
+				//init max correlation
 				if(maxC < abs(pearson(tempF1,tempF2,N))){
 					maxC = abs(pearson(tempF1, tempF2, N));
 					f1 = t.getVector().at(i).first;
@@ -115,12 +114,10 @@ void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts){
  * @brief on every report we want to return description and timestep.
  *  The method in the end, return a vector of "AnomalyReport" for every single row
  *  that count the timestep (start from 1) and have the descripsion (for the most corrolated\uncorrolated?) like "A-C"
- * 
  * @param ts 
  * @return vector<AnomalyReport>
  */
 vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts){
-	//learnNormal(ts); // to check if we need to ensure if the timeseries went throw learnNormal before.
 	vector<AnomalyReport> report;
 	for(correlatedFeatures cl: cf){
 		int index1,index2;
@@ -135,26 +132,25 @@ vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts){
 			}
 		}
 		int timeStep = 1;
-		// A loop to run over every row with the spesific iteration (A-C or B-D) and push the detected errors (cl.threshold)
+		// A loop to run over every row with the spesific iteration (Like A-B for instance) and push the detected errors (cl.threshold)
 		for(int j=0; j<ts.getVector().at(0).second.size(); j++){
 			Point p1(ts.getVector().at(index1).second[j], ts.getVector().at(index2).second[j]);
-			if(dev(p1, cl.lin_reg) > cl.threshold){
-				//cout<<" dev is:"<<dev(p1, cl.lin_reg)<<"threshold is: "<< cl.threshold<< endl;
+			if(SimpleAnomalCheck(p1, cl)){
 				report.push_back(AnomalyReport(ts.getVector().at(index1).first + "-" + ts.getVector().at(index2).first, timeStep));
 			}
 			timeStep ++;
 		}
 	}
-
 	//Checker detect:
 	// for(AnomalyReport rprt: report){
-
 	// 	cout<<"detect_check: "<<rprt.description<<",  timeStep:"<<rprt.timeStep<<endl;
-		
 	// }
-	
 	return report;
+}
 
+// check if there is anomal detection
+bool SimpleAnomalyDetector::SimpleAnomalCheck(Point p, correlatedFeatures c){
+	return (dev(p, c.lin_reg) > c.threshold);
 }
 
 

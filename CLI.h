@@ -9,16 +9,12 @@
 using namespace std;
 
 class CLI {
-	DefaultIO* dio;//--STANDART dio OR SOCKET
-    Command** commands; //data structure for menu
+	DefaultIO* dio;
 	// you can add data members
-    
-    
 public:
 	CLI(DefaultIO* dio);
 	void start();
 	virtual ~CLI();
-    void setCommand();
 };
 
 #endif /* CLI_H_ */
