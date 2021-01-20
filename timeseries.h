@@ -9,8 +9,7 @@
 using namespace std;
 
 class TimeSeries{
-private:
-    
+protected:
     //vector -> fet.at(index).first\second..
     vector<pair<string, vector<float>>> features;
 

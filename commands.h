@@ -35,18 +35,36 @@ public:
 };
 
 class MacroCommand : public Command{
-protected: DefaultIO* dio;
+protected: DefaultIO* dioM;
 public:
 vector<Command*> commandos;
+
 	MacroCommand(DefaultIO* dio):Command(dio){
+		dioM = dio;
 	}
 	virtual void execute(){
-		string line;
-		// while(dio->read()){
-		// 	if(dio->read() =="1"){ //if the first line is 1
-		// 		commandos.at(0)->execute();
-		// 	}
-		// }
+		string optionN = dioM->read();
+		while(optionN != "6"){
+			if(optionN == "1"){
+				commandos.at(0)->execute();
+			}
+			if(optionN == "2"){
+				commandos.at(1)->execute();
+			}
+			if(optionN == "3"){
+				commandos.at(2)->execute();
+			}
+			if(optionN == "4"){
+				commandos.at(3)->execute();
+			}
+			if(optionN == "5"){
+				commandos.at(4)->execute();
+			}
+			optionN = dioM->read();
+		}
+		
+		
+
 	}
 
 	virtual string getDescription(){
@@ -65,14 +83,34 @@ class Command_1 : public Command{
 	DefaultIO* dio1;
 public:
 	string description;
-	Command_1(DefaultIO* dio1):Command(dio1){
+	Command_1(DefaultIO* dio):Command(dio){
 		description = "1. upload a time series csv file";
+		dio1 = dio;
 	}
 	virtual string getDescription (){
 		return description;
 	}
 	virtual void execute(){
-		cout<<"Please upload your local train CSV file.\n";
+		int itr = 2;
+		string fileName = "Train";
+		
+		while(itr != 0){
+			cout<<"Please upload your local train CSV file.\n";
+			ofstream myfile;
+			myfile.open("anomaly" + fileName + ".csv");
+			string lines = dio1->read();
+			while (lines != "done")
+			{
+				myfile << lines + "\n";
+				lines = dio1->read();
+			}
+			itr--;
+			myfile.close();
+			fileName = "Test";
+			cout<<"Upload complete.\n";
+		}
+		TimeSeries trainCSV("anomalyTrain.csv");
+		TimeSeries testCSV("anomalyTest.csv");
 		
 	}
 	~Command_1(){}
@@ -82,8 +120,9 @@ class Command_2 : public Command{
 	DefaultIO* dio2;
 public:
 	string description;
-	Command_2(DefaultIO* dio2):Command(dio2){
+	Command_2(DefaultIO* dio):Command(dio){
 		description = "2. algorithm settings";
+		dio2 = dio;
 	}
 	virtual string getDescription (){
 		return description;
@@ -95,8 +134,9 @@ class Command_3 : public Command{
 	DefaultIO* dio3;
 public:
 	string description;
-	Command_3(DefaultIO* dio3):Command(dio3){
+	Command_3(DefaultIO* dio):Command(dio){
 		description = "3. detect anomalies";
+		dio3 = dio;
 	}
 	virtual string getDescription (){
 		return description;
@@ -105,11 +145,12 @@ public:
 	~Command_3(){}
 };
 class Command_4 : public Command{
-	DefaultIO* dio2;
+	DefaultIO* dio4;
 public:
 	string description;
-	Command_4(DefaultIO* dio4):Command(dio4){
+	Command_4(DefaultIO* dio):Command(dio){
 		description = "4. display results";
+		dio4 = dio;
 	}
 	virtual string getDescription (){
 		return description;
@@ -118,11 +159,12 @@ public:
 	~Command_4(){}
 };
 class Command_5 : public Command{
-	DefaultIO* dio2;
+	DefaultIO* dio5;
 public:
 	string description;
-	Command_5(DefaultIO* dio5):Command(dio5){
+	Command_5(DefaultIO* dio):Command(dio){
 		description = "5. upload anomalies and analyze results";
+		dio5 = dio;
 	}
 	virtual string getDescription (){
 		return description;
