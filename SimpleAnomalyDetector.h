@@ -27,7 +27,9 @@ public:
 	virtual ~SimpleAnomalyDetector();
 	virtual void learnNormal(const TimeSeries& ts);
 	virtual vector<AnomalyReport> detect(const TimeSeries& ts);
-
+	float getThreshold(){
+		return threshold;
+	}
 	vector<correlatedFeatures> getNormalModel(){
 		return cf;
 	}
