@@ -6,21 +6,17 @@ CLI::CLI(DefaultIO* di) {
 }
 
 void CLI::start(){
-    dio->write("Welcome to the Anomaly Detection Server.\nPlease choose an option:\n");
-    Command* one = new Command_1(dio);
-    Command* two = new Command_2(dio);
-    Command* three = new Command_3(dio);
-    Command* four = new Command_4(dio);
-    Command* five = new Command_5(dio);
-    Command* six = new Command_6(dio);
-    MacroCommand macro(dio);
+    
+     MacroCommand macro(dio);
+    Command* one = new Command_1(dio,&macro);
+    Command* two = new Command_2(dio, &macro);
+    Command* three = new Command_3(dio, &macro);
+    Command* four = new Command_4(dio, &macro);
+    Command* five = new Command_5(dio, &macro);
+    Command* six = new Command_6(dio, macro);
     macro.setCommands(one,two,three,four,five,six);
-    // for(Command* c : macro.commandos){ 
-    //     dio->write(c->getDescription() + "\n");
-    // }
     macro.execute();
     
-
 }   
 
 CLI::~CLI(){

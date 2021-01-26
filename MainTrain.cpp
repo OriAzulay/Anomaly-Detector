@@ -28,6 +28,7 @@ public:
 	}
 	virtual void write(string text){
 		out<<text;
+		out << flush;
 	}
 	
 	virtual void write(float f){
